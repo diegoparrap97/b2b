@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnóstico MIDI · B2B</title>
+<style>
+  :root { color-scheme: dark; --bg:#0e0e10; --card:#17171b; --line:#2a2a31; --tx:#e8e8ec; --dim:#9a9aa4; --ok:#3ddc84; --bad:#ff5f56; --warn:#ffbd2e; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:28px 20px 60px; background:var(--bg); color:var(--tx);
+         font:15px/1.55 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 4px; letter-spacing:.2px; }
+  .sub { color:var(--dim); margin:0 0 24px; font-size:13px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+  .verdict { font-size:17px; font-weight:600; display:flex; gap:10px; align-items:flex-start; }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--dim); flex:0 0 auto; margin-top:7px; }
+  .dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
+  .hint { color:var(--dim); font-size:13px; margin:10px 0 0; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.9px; color:var(--dim); margin:0 0 10px; font-weight:600; }
+  ul { margin:0; padding-left:18px; }
+  li { margin:3px 0; }
+  code, .log { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; }
+  .log { background:#0b0b0d; border:1px solid var(--line); border-radius:8px; padding:10px 12px;
+         max-height:220px; overflow:auto; white-space:pre-wrap; color:#bfe8d0; }
+  .empty { color:var(--dim); }
+  .count { float:right; color:var(--dim); font-weight:400; text-transform:none; letter-spacing:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Diagnóstico MIDI</h1>
+  <p class="sub">Prueba el controlador por fuera de la app, para saber si el problema es del sistema o de B2B.</p>
+
+  <div class="card">
+    <div class="verdict"><span class="dot" id="dot"></span><span id="verdict">Pidiendo acceso MIDI…</span></div>
+    <p class="hint" id="hint"></p>
+  </div>
+
+  <div class="card">
+    <h2>Puertos de entrada <span class="count" id="nin"></span></h2>
+    <ul id="ins"><li class="empty">—</li></ul>
+  </div>
+
+  <div class="card">
+    <h2>Puertos de salida <span class="count" id="nout"></span></h2>
+    <ul id="outs"><li class="empty">—</li></ul>
+  </div>
+
+  <div class="card">
+    <h2>Mensajes que llegan <span class="count" id="nmsg"></span></h2>
+    <div class="log" id="log">Mueve una perilla o aplasta un botón del controlador…</div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const say = (txt, kind, hint) => {
+  $('verdict').textContent = txt;
+  $('dot').className = 'dot ' + (kind || '');
+  $('hint').textContent = hint || '';
+};
+const hex = (n) => n.toString(16).toUpperCase().padStart(2, '0');
+
+function listPorts(access) {
+  const ins = [...access.inputs.values()];
+  const outs = [...access.outputs.values()];
+  const render = (el, ports) => {
+    el.innerHTML = ports.length
+      ? ports.map((p) => `<li><code>${p.name || '(sin nombre)'}</code> — ${p.manufacturer || 'sin fabricante'} · ${p.state}</li>`).join('')
+      : '<li class="empty">ninguno</li>';
+  };
+  render($('ins'), ins);
+  render($('outs'), outs);
+  $('nin').textContent = ins.length;
+  $('nout').textContent = outs.length;
+
+  const mix = ins.find((p) => /mixtrack|numark|platinum/i.test(p.name || ''));
+  const real = ins.filter((p) => !/IAC Driver|Network Session|Bluetooth/i.test(p.name || ''));
+  if (mix) say('El Mac SÍ ve la Mixtrack: ' + mix.name, 'ok', 'El controlador y el cable están bien. El problema está en B2B.');
+  else if (real.length) say('Hay ' + real.length + ' puerto(s) MIDI, pero ninguno se llama Mixtrack', 'warn', 'Dile a Claude los nombres de la lista de arriba.');
+  else if (ins.length) say('Solo se ven puertos del sistema, no el controlador', 'bad', 'El Mac no está viendo la Mixtrack. Prueba otro cable o conéctala directo, sin hub.');
+  else say('El Mac no ve ningún puerto MIDI', 'bad', 'Ni el controlador ni nada más. Prueba otro cable USB-C y conéctala directo, sin hub ni adaptador.');
+
+  for (const p of ins) {
+    p.onmidimessage = (e) => {
+      const d = [...e.data];
+      if (d[0] === 0xfe || d[0] === 0xf8) return; // ignora el latido del reloj MIDI
+      const log = $('log');
+      if (log.dataset.started !== '1') { log.textContent = ''; log.dataset.started = '1'; }
+      log.textContent = `${p.name}: ${d.map(hex).join(' ')}\n` + log.textContent;
+      const n = (+log.dataset.n || 0) + 1;
+      log.dataset.n = n;
+      $('nmsg').textContent = n;
+      if (n === 1) say('¡Llegan mensajes del controlador!', 'ok', 'El Mac lo ve y lo escucha bien. El problema está en B2B.');
+    };
+  }
+}
+
+async function go() {
+  if (!navigator.requestMIDIAccess) {
+    say('Este navegador no permite MIDI', 'bad', 'Abre este mismo archivo en Google Chrome. Safari no soporta MIDI.');
+    return;
+  }
+  const tryOne = (sysex, ms) => new Promise((res, rej) => {
+    const t = setTimeout(() => rej(new Error('sin respuesta en ' + ms / 1000 + ' s')), ms);
+    navigator.requestMIDIAccess({ sysex }).then(
+      (a) => { clearTimeout(t); res(a); },
+      (e) => { clearTimeout(t); rej(e); },
+    );
+  });
+  let access = null;
+  const why = [];
+  for (const sysex of [false, true]) {
+    try { access = await tryOne(sysex, 5000); break; }
+    catch (e) { why.push((sysex ? 'con SysEx' : 'básico') + ': ' + (e.message || e)); }
+  }
+  if (!access) {
+    say('No se pudo acceder al MIDI', 'bad', why.join(' · ') + '. Si el navegador pidió permiso, acéptalo y recarga.');
+    return;
+  }
+  listPorts(access);
+  access.onstatechange = () => listPorts(access);
+}
+go();
+</script>
+</body>
+</html>

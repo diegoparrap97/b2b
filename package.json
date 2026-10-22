@@ -1,0 +1,36 @@
+{
+  "name": "b2b",
+  "productName": "B2B",
+  "version": "0.1.0",
+  "private": true,
+  "description": "B2B · Back to back — app de escritorio para mezclar música (React + Electron)",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n vite,electron -c magenta,cyan \"vite\" \"wait-on tcp:5173 && cross-env B2B_DEV=1 electron .\"",
+    "web": "vite",
+    "build": "vite build",
+    "start": "vite build && electron ."
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.5",
+    "@fontsource/sora": "^5.2.5",
+    "music-metadata": "^11.16.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.5.2",
+    "concurrently": "9.1.2",
+    "cross-env": "7.0.3",
+    "electron": "37.2.0",
+    "vite": "6.3.5",
+    "wait-on": "8.0.3"
+  },
+  "license": "GPL-2.0-or-later",
+  "author": "Diego",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TU-USUARIO/b2b.git"
+  }
+}

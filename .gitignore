@@ -1,0 +1,12 @@
+node_modules/
+dist/
+release/
+out/
+
+# Archivos de diagnóstico que genera la app al correr
+midi-diag.json
+salida.txt
+
+.DS_Store
+*.log
+.env
