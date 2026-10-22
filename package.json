@@ -3,7 +3,7 @@
   "productName": "B2B",
   "version": "0.1.0",
   "private": true,
-  "description": "B2B · Back to back — app de escritorio para mezclar música (React + Electron)",
+  "description": "Desktop DJ app that reads your Serato library read-only and maps the Numark Mixtrack Platinum FX. React + Electron.",
   "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
@@ -31,6 +31,17 @@
   "author": "Diego",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TU-USUARIO/b2b.git"
-  }
+    "url": "https://github.com/diegoparrap97/b2b.git"
+  },
+  "keywords": [
+    "dj",
+    "serato",
+    "numark",
+    "mixtrack",
+    "midi",
+    "electron",
+    "react",
+    "web-audio",
+    "audio"
+  ]
 }

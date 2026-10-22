@@ -30,7 +30,7 @@ de Serato sin modificarla y funciona con la Numark Mixtrack Platinum FX.
 ## Cómo correrla
 
 ```bash
-git clone https://github.com/TU-USUARIO/b2b.git
+git clone https://github.com/diegoparrap97/b2b.git
 cd b2b
 npm install
 npm run dev
