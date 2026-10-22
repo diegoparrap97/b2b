@@ -1,33 +1,35 @@
 # B2B · Back to back
 
-App de escritorio para mezclar música, hecha con React + Electron. Lee tu librería
-de Serato sin modificarla y funciona con la Numark Mixtrack Platinum FX.
+A desktop DJ app built with React + Electron. It reads your Serato library without
+touching it, and works with the Numark Mixtrack Platinum FX.
 
 ![B2B](docs/captura.png)
 
-## Qué hace
+## What it does
 
-- **Lee tu librería de Serato** (solo lectura): base de datos, crates, hot cues y
-  beatgrid salen de `~/Music/_Serato_` y de los tags de tus archivos. B2B nunca
-  escribe en ellos; los cues que creas acá se guardan aparte.
-- **Audio con Web Audio**: play, pitch, SYNC con BPM y fase, auto loop cuantizado
-  al grid, hot cues, scratch con AudioWorklet.
-- **Mixer** de 2 canales: gain, EQ de 3 bandas, filtro, faders, crossfader y CUE
-  por canal.
-- **Waveforms en 3 bandas**, dibujadas sobre el beatgrid. Si una pista no trae BPM
-  ni grid, los detecta sola.
-- **Salida en 4 canales**: con la Mixtrack, el master va por los canales 1-2 y los
-  audífonos (CUE) por los 3-4.
-- **Controlador**: mapeo completo de la Numark Mixtrack Platinum FX, con LEDs,
-  vúmetros y las pantallas de los jogs.
+- **Reads your Serato library** (read-only): database, crates, hot cues and
+  beatgrids come from `~/Music/_Serato_` and from your files' own tags. B2B never
+  writes to them — cues you create here are stored separately.
+- **Web Audio engine**: play, pitch, SYNC on both BPM and phase, auto loops
+  quantized to the grid, hot cues, and scratching through an AudioWorklet.
+- **2-channel mixer**: gain, 3-band EQ, filter, line faders, crossfader and
+  per-channel CUE.
+- **3-band waveforms** drawn against the beatgrid. If a track has no BPM or grid,
+  B2B works them out on its own.
+- **4-channel output**: with the Mixtrack, master goes out on channels 1-2 and the
+  headphones (CUE) on 3-4.
+- **Controller**: full mapping for the Numark Mixtrack Platinum FX, including LEDs,
+  VU meters and the jog screens.
 
-## Requisitos
+## Requirements
 
-- macOS (probado en un MacBook Pro 2017)
-- [Node.js](https://nodejs.org) 20 o superior
-- Opcional: Numark Mixtrack Platinum FX
+- macOS (tested on a 2017 MacBook Pro)
+- [Node.js](https://nodejs.org) 20 or newer
+- Optional: Numark Mixtrack Platinum FX
 
-## Cómo correrla
+The interface is in Spanish.
+
+## Getting started
 
 ```bash
 git clone https://github.com/diegoparrap97/b2b.git
@@ -36,66 +38,65 @@ npm install
 npm run dev
 ```
 
-La primera vez, abre ⚙︎ Ajustes y apunta las dos rutas: tu carpeta de música y tu
-carpeta `_Serato_`.
+The first time, open ⚙︎ Settings and point B2B at two folders: your music folder
+and your `_Serato_` folder.
 
-Otros comandos:
+Other commands:
 
-- `npm run web`: la interfaz en el navegador, sin acceso a tus archivos
-- `npm start`: compila y abre la versión final
+- `npm run web`: the interface in a browser, with no access to your files
+- `npm start`: build and open the production version
 
-## Controlador: Numark Mixtrack Platinum FX
+## Controller: Numark Mixtrack Platinum FX
 
-Se conecta solo al abrir la app. El estado aparece abajo a la derecha y en Ajustes,
-donde además hay un monitor MIDI para ver los mensajes en crudo.
+It connects on its own when the app opens. Status shows in the bottom-right corner
+and in Settings, where there's also a MIDI monitor showing raw messages.
 
-| Control | Qué hace |
+| Control | What it does |
 |---|---|
-| PLAY / CUE | Play-pausa. CUE: sonando vuelve al cue y pausa; en pausa fija el cue; sobre el cue lo escuchas mientras lo sostienes |
-| SHIFT + PLAY / SHIFT + CUE | Stutter desde el cue / ir al inicio |
-| SYNC (SHIFT + SYNC) | Sincroniza BPM y fase (lo apaga) |
-| Jog, parte de arriba | Scratch (el botón SCRATCH lo activa o desactiva) |
-| Jog, borde | Empuja o frena para cuadrar beats. Con SHIFT: búsqueda rápida |
-| Fader de pitch | ±8 %. SHIFT + PITCH BEND − cambia el rango (8/16/50 %) |
-| PITCH BEND + / − | Acelera o frena mientras lo sostienes. SHIFT + BEND + = key lock |
-| Pads – HOT CUE | Saltar y reproducir / guardar. SHIFT + pad = borrar |
-| Pads – AUTO LOOP | Loops de 1/8 a 16 beats |
-| Pads – FADER CUTS | Los pads 1-4 cortan el canal mientras los sostienes |
-| LOOP, ½, ×2 | Auto loop, mitad, doble. SHIFT + ½ / ×2 = loop in / loop out |
-| Mixer | Gain, EQ, filtro, volumen, crossfader, CUE, cue mix y master |
-| BROWSE | Girar: moverse por la lista. Presionar: cambiar entre crates y pistas. LOAD 1/2 carga |
+| PLAY / CUE | Play-pause. CUE: while playing, jumps back to the cue and pauses; while paused, sets the cue; on the cue, previews it while held |
+| SHIFT + PLAY / SHIFT + CUE | Stutter from the cue / jump to the start |
+| SYNC (SHIFT + SYNC) | Matches BPM and phase (turns it off) |
+| Jog, top | Scratch (the SCRATCH button toggles it) |
+| Jog, edge | Nudges the track to line up beats. With SHIFT: fast search |
+| Pitch fader | ±8 %. SHIFT + PITCH BEND − cycles the range (8/16/50 %) |
+| PITCH BEND + / − | Speeds up or slows down while held. SHIFT + BEND + = key lock |
+| Pads – HOT CUE | Jump and play / store. SHIFT + pad = delete |
+| Pads – AUTO LOOP | Loops from 1/8 to 16 beats |
+| Pads – FADER CUTS | Pads 1-4 cut the channel while held |
+| LOOP, ½, ×2 | Auto loop, halve, double. SHIFT + ½ / ×2 = loop in / loop out |
+| Mixer | Gain, EQ, filter, volume, crossfader, CUE, cue mix and master |
+| BROWSE | Turn: move through the list. Press: switch between crates and tracks. LOAD 1/2 loads |
 
-**El fader de pitch tiene soft takeover**: no toma el control hasta que su posición
-física coincide con el pitch actual, para que el tema no pegue un salto. Mientras
-espera, el porcentaje parpadea en amarillo.
+**The pitch fader uses soft takeover**: it won't grab control until its physical
+position matches the current pitch, so the track never jumps. While it waits, the
+pitch percentage blinks yellow.
 
-**Las pantallas de los jogs necesitan permiso de SysEx**, que el sistema solo
-concede a partir de un clic. Si salen en blanco o el controlador se pone a hacer su
-show de luces (modo demo), abre ⚙︎ Ajustes → Controlador y aplasta "Activar
-pantallas del jog".
+**The jog screens need SysEx permission**, which the system only grants off a
+click. If they stay blank, or the controller starts running its light show (demo
+mode), open ⚙︎ Settings → Controller and hit "Activar pantallas del jog".
 
-## Falta
+## Not there yet
 
-- Efectos (botones y palancas de FX)
+- Effects (FX buttons and paddles)
 - Sampler
-- Key lock real: hoy el pitch también cambia el tono
+- Real key lock — right now, changing the tempo also shifts the pitch
 
-## Créditos y licencia
+## Credits and license
 
-El mapeo MIDI de la Mixtrack Platinum FX (números de los controles, formato de las
-pantallas de los jogs) está basado en el mapeo abierto de
-[Mixxx](https://github.com/mixxxdj/mixxx), que es software libre bajo GPL-2.0+.
-Por eso B2B se publica bajo la misma licencia: **GPL-2.0-or-later** (ver
-[LICENSE](LICENSE)). Gracias al equipo de Mixxx y a quienes documentaron este
-controlador.
+The MIDI mapping for the Mixtrack Platinum FX — control numbers and the jog-screen
+format — is based on the open mapping in
+[Mixxx](https://github.com/mixxxdj/mixxx), which is free software under GPL-2.0+.
+B2B is therefore released under the same license: **GPL-2.0-or-later** (see
+[LICENSE](LICENSE)). Thanks to the Mixxx team and to everyone who documented this
+controller.
 
-Tipografías: [Sora](https://fonts.google.com/specimen/Sora) e
-[IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono), ambas bajo
+Typefaces: [Sora](https://fonts.google.com/specimen/Sora) and
+[IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono), both under the
 SIL Open Font License.
 
-## Aviso
+## Notice
 
-B2B es un proyecto independiente, sin relación ni respaldo de Serato ni de Numark.
-Lee los archivos de Serato en modo solo lectura mediante formatos documentados
-públicamente; "Serato" y "Numark" son marcas de sus respectivos dueños y se
-mencionan solo para describir con qué funciona.
+B2B is an independent project, not affiliated with or endorsed by Serato or Numark.
+It reads Serato's files read-only through publicly documented formats. "Serato" and
+"Numark" are trademarks of their respective owners and are named here only to
+describe what B2B works with.
